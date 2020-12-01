@@ -1,0 +1,132 @@
+package main
+
+import (
+    "fmt"
+    "strings"
+    "bufio"
+    "os"
+)
+
+type Orbit struct {
+    name string
+    orbits *Orbit
+    count int
+    counted bool
+}
+
+const MAX int = 10000
+var orbitArray [MAX]*Orbit
+var numBranches int = 0
+
+func printOrbit(o *Orbit) {
+  if (o != nil) {
+    var orb Orbit = *o
+    var o2 string = "nil"
+    if (orb.orbits != nil) {
+      o2 = (*orb.orbits).name
+    }
+    fmt.Printf("name: %v orbits: %v\n", orb.name,o2)
+  }
+}
+
+func insertOrbit(name, orbits string) {
+  for i:=0;i<numBranches;i++ {
+    if (orbits == (*orbitArray[i]).name) {
+      orbitArray[i] = &Orbit{name: name, orbits: orbitArray[i]}
+      fmt.Printf("Extending existing branch: %v, ", i)
+      printOrbit(orbitArray[i])
+      return
+    }
+    for o:=(*orbitArray[i]).orbits;o!=nil;o=(*o).orbits {
+      fmt.Printf("Checking orbit in branch: %v %v\n",name, *o)
+      if (orbits == (*o).name) {
+          fmt.Printf("Creating new branch: %v %v at %v\n, ", i, *o, numBranches)
+          orbitArray[numBranches] = &Orbit{name: name, orbits: o}
+          //printOrbit(orbitArray[numBranches])
+          numBranches++
+          return
+      }
+      if (name == (*o).name && (*o).orbits == nil) {
+        (*o).orbits = &Orbit{name: orbits, orbits: nil}
+        fmt.Printf("Extending existing branch: %v, ", i)
+        printOrbit(o)
+      }
+    }
+  }
+  var orb Orbit = Orbit{name: orbits, orbits: nil};
+  orbitArray[numBranches] = &Orbit{name: name, orbits: &orb}
+  fmt.Printf("Creating new branch: %v, ", numBranches)
+  printOrbit(orbitArray[numBranches])
+  numBranches++
+
+}
+
+func readInput() {
+  scanner := bufio.NewScanner(os.Stdin)
+  scanner.Split(bufio.ScanLines)
+  for scanner.Scan() {
+    orbit := strings.Split(scanner.Text(),")")
+    if (len(orbit) == 2) {
+      fmt.Println("Orbit: ", orbit)
+      insertOrbit(orbit[1], orbit[0])
+    }
+  }
+}
+
+func linkBranches() bool {
+  for i:=0;i<numBranches;i++ {
+    var o *Orbit
+    fmt.Printf("Checking link for branch: %v %v\n",i,orbitArray[i])
+    for o=orbitArray[i];(*o).orbits!=nil;o=(*o).orbits {}
+    if ((*o).name != "COM") {
+      fmt.Printf("Checking to link branch ending with: %v\n", o)
+      for j:=0;j<numBranches;j++ {
+        if ((*orbitArray[j]).name == (*o).name) {
+          fmt.Printf("Found branches to link, %v %v  - %v %v\n", i,o,j,orbitArray[j])
+          (*o).orbits = (*orbitArray[j]).orbits
+          orbitArray[j]=orbitArray[numBranches-1]
+          numBranches--
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+func countDistance(o *Orbit) int {
+  if (o == nil || (*o).name == "COM") {
+    return 0
+  } else {
+    (*o).count = countDistance((*o).orbits) + 1
+    return (*o).count
+  }
+}
+
+func countOrbits() int {
+  count := 0
+  for i:=0;i<numBranches;i++ {
+    for o:=orbitArray[i];o!=nil;o=o.orbits {
+      if ((*o).counted == false) {
+        count +=(*o).count
+        (*o).counted = true
+      }
+      fmt.Printf("(%v,%v,%v)-",(*o).name,(*o).count,count)
+    }
+    fmt.Println()
+  }
+  return count
+}
+
+func main() {
+  readInput()
+  for linkBranches() { }
+
+  for i:=0;i<numBranches;i++ {
+    countDistance(orbitArray[i])
+  }
+  count := countOrbits()
+
+  fmt.Println("Number of branches: ", numBranches)
+  fmt.Println("Number of orbits: ", count)
+}
