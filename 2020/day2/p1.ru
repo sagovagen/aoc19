@@ -5,19 +5,35 @@ fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         let s = &line.unwrap()[..];
-        let v:Vec<&str> = s.split("-").collect();
+        let v = split_line(s);
+
+/* 
+       let v1:Vec<&str> = s.split(" ").collect();
+        let v2:Vec<&str> = v1[0].split("-").collect();
+        let v3:Vec<&str> = v1[1].split(":").collect();
+        */
         let r1 = v[0].parse::<i32>().unwrap();
-        let v:Vec<&str> = v[1].split(" ").collect();
-        let r2 = v[0].parse::<i32>().unwrap();
-        let pwd = v[2].trim();
-        let v:Vec<&str> = v[1].split(":").collect();
-        let c = v[0].parse::<char>().unwrap();
+        let r2 = v[1].parse::<i32>().unwrap();
+        let c = v[2].parse::<char>().unwrap();
+        let pwd=v[3];
         let n = count_letter(c, pwd);
         if n >= r1 && n <= r2 {
             num_ok += 1;
         }
     }
     println!("Number of accepted passwords: {}", num_ok);
+}
+
+fn split_line(line:&str) -> Vec<&str> {
+    let mut value:Vec<&str> = [].to_vec();
+    let v:Vec<&str> = line.split(" ").collect();
+    let v1:Vec<&str> = v[0].split("-").collect();
+    let v2:Vec<&str> = v[1].split(":").collect();
+    value.push(v1[0]);
+    value.push(v1[1]);
+    value.push(v2[0]);
+    value.push(v[2]);
+    return value;
 }
 
 fn count_letter(ch:char, s:&str) -> i32 {
