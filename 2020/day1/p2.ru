@@ -12,19 +12,18 @@ fn main() {
 }
 
 fn find_2020(num:u32, numbers:&Vec::<u32>) {
-    if numbers.len() > 0 {
+    if numbers.len() > 1 {
         for i in 0..numbers.len()-1 {
-            if sum_is_2020(num, numbers[i]) {
-                println!("{} + {} : {}", num, numbers[i], num*numbers[i]);
+            for j in i+1..numbers.len()-1 {
+                if sum_is_2020(num, numbers[i], numbers[j]) {
+                    println!("{} + {} + {}: {}", num, numbers[i], numbers[j], num*numbers[i]*numbers[j]);
+                }
             }
         }
     }
 }
 
-fn sum_is_2020(first:u32, second:u32) -> bool {
-    if first + second == 2020 {
-        return true;
-    }
-    return false;
+fn sum_is_2020(x:u32, y:u32, z:u32) -> bool {
+    return (x+y+z) == 2020;
 }
 
