@@ -16,7 +16,7 @@ r1.on('line', function(line) {
     // Put the number in an array
     num = parseInt(line);
     for (var i = numbers.length - 1; i>=0; i--) {
-      for (var j = i; j>0; j--) {
+      for (var j = i-1; j>0; j--) {
         if (sum2020(num, numbers[i], numbers[j])) {
           console.log(num + " " + numbers[i] + " " + numbers[j]);
           console.log(num * numbers[i] * numbers[j]);
