@@ -1,25 +1,16 @@
 use std::io::{self, BufRead};
 
+type Slope = (usize,usize);
+type TreeMap = Vec<Vec<bool>>;
+
 fn main() {
-    let stdin = io::stdin();
+    let trees = read_map();
+    println!("rows: {}, cols: {}", trees.len(), trees[0].len());
 
-    let mut board: Vec<bool> = [].to_vec();
-    let lines = stdin.lock().lines();
-    let mut rows = 0;
-    for line in lines {
-        let chars:Vec<char> = line.unwrap()[..].chars().collect();
-        for c in chars {
-            board.push(c == '#');
-        }
-        rows += 1;
-    }
-    let cols = (board.len() as i32) / rows;
-    println!("rows: {}, cols: {}", rows, cols);
-
-    let slopes = [(1,1),(3,1),(5,1),(7,1),(1,2)];
+    let slopes:Vec<Slope> = [(1,1),(3,1),(5,1),(7,1),(1,2)].to_vec();
     let mut prod = 1;
     for slope in slopes.iter() {
-        let num = count_trees(&board, rows, cols, slope.0, slope.1);
+        let num = count_trees(&trees, slope);
         prod *= num;
         println!("slope {},{} number of trees: {}", slope.0,slope.1,num);
     }
@@ -28,21 +19,36 @@ fn main() {
 
 }
 
-fn count_trees(board: &Vec<bool>, rows: i32, cols: i32, cstep: i32, rstep: i32) -> i32 {
+// Read tree map from stdin (lines of '..#.#....##.#' where . means no tree)
+fn read_map() -> TreeMap {
+    let stdin = io::stdin();
+    let mut trees: TreeMap = [].to_vec();
+    let lines = stdin.lock().lines();
+    for line in lines {
+        let mut row = [].to_vec();
+        let chars:Vec<char> = line.unwrap()[..].chars().collect();
+        for c in chars {
+            row.push(c == '#');
+        }
+        trees.push(row);
+    }
+    return trees;
+}
+
+fn count_trees(trees: &TreeMap, slope: &Slope) -> i32 {
     let mut n = 0;
-    let mut r = 0;
-    let mut c = 0;
+    let mut r:usize = 0;
+    let mut c:usize = 0;
+    let cols = trees[0].len();
     loop {
         let cm = c % cols;
-        let ix = (r*cols + cm) as usize;
-        //println!("r: {}, c: {}, tree: {}", r, c, board[ix]);
-        if board[ix] {
+        if trees[r][cm] {
             n += 1;
         }
-        r += rstep;
-        c += cstep;
+        c += slope.0;
+        r += slope.1;
 
-        if r >= rows {
+        if r >= trees.len() {
             break;
         }
     }
