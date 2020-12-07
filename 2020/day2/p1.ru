@@ -6,12 +6,6 @@ fn main() {
     for line in stdin.lock().lines() {
         let s = &line.unwrap()[..];
         let v = split_line(s);
-
-/* 
-       let v1:Vec<&str> = s.split(" ").collect();
-        let v2:Vec<&str> = v1[0].split("-").collect();
-        let v3:Vec<&str> = v1[1].split(":").collect();
-        */
         let r1 = v[0].parse::<i32>().unwrap();
         let r2 = v[1].parse::<i32>().unwrap();
         let c = v[2].parse::<char>().unwrap();
